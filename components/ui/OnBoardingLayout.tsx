@@ -11,6 +11,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { router, useFocusEffect } from "expo-router";
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withDelay,
   withSpring,
@@ -63,11 +64,15 @@ export const OnBoardingLayout: React.FC<OnBoardingLayoutProps> = ({
   const screenStack = useNavigationState((state) => state.routes);
   const initial = screenStack.length === 1;
 
+  const normalScale = useDerivedValue(() => {
+    return Math.min(1, scale.value - 1);
+  });
+
   const dynamic_duration = initial
     ? 0
     : goingBack
-    ? 700
-    : Math.min(1000, Math.max(width, 800));
+    ? Math.max(500, Math.max(width, 700))
+    : Math.min(550, Math.max(width, 800));
 
   const TIMING_CONFIG_DYNAMIC = React.useMemo(
     () => ({
@@ -92,23 +97,26 @@ export const OnBoardingLayout: React.FC<OnBoardingLayoutProps> = ({
   }));
 
   const btnAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: withTiming(Math.min(1, scale.value - 1), TIMING_CONFIG) },
-    ],
+    transform: [{ scale: withTiming(normalScale.value, TIMING_CONFIG) }],
   }));
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        scale: withSpring(
-          initial ? 1 : Math.max(0, Math.min(1, scale.value - 1)),
-          SPRING_CONFIG
-        ),
+        scale: goingBack
+          ? withTiming(
+              initial ? 1 : Math.max(0, normalScale.value),
+              TIMING_CONFIG
+            )
+          : withSpring(
+              initial ? 1 : Math.max(0, normalScale.value),
+              SPRING_CONFIG
+            ),
       },
     ],
     opacity: goingBack
       ? withTiming(0)
-      : withDelay(120, withTiming(Math.min(1, scale.value - 1), TIMING_CONFIG)),
+      : withDelay(120, withTiming(normalScale.value, TIMING_CONFIG)),
   }));
 
   const handleBack = React.useCallback(() => {
