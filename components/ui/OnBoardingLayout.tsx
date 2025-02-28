@@ -62,7 +62,7 @@ export const OnBoardingLayout: React.FC<OnBoardingLayoutProps> = ({
   const { width } = useWindowDimensions();
   const scale = useSharedValue(1);
   const screenStack = useNavigationState((state) => state.routes);
-  const initial = screenStack.length === 1;
+  const initial = screenStack.length === 1; // Added to know if it's the first screen
 
   const normalScale = useDerivedValue(() => {
     return Math.min(1, scale.value - 1);
@@ -71,7 +71,7 @@ export const OnBoardingLayout: React.FC<OnBoardingLayoutProps> = ({
   const dynamic_duration = initial
     ? 0
     : goingBack
-    ? Math.max(500, Math.max(width, 700))
+    ? 650
     : Math.min(550, Math.max(width, 800));
 
   const TIMING_CONFIG_DYNAMIC = React.useMemo(
@@ -129,10 +129,10 @@ export const OnBoardingLayout: React.FC<OnBoardingLayoutProps> = ({
     setTimeout(() => {
       setGoingBack(false);
       router.back();
-    }, TIMING_CONFIG.duration);
+    }, TIMING_CONFIG_DYNAMIC.duration);
 
     return true;
-  }, [initial, complete, goingBack, scale, TIMING_CONFIG.duration]);
+  }, [initial, complete, goingBack, scale, TIMING_CONFIG_DYNAMIC.duration]);
 
   useFocusEffect(() => {
     const backHandler = BackHandler.addEventListener(
